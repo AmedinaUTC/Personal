@@ -84,6 +84,16 @@ var budgetController = (function (){
                 totalExp: data.totals.exp,
                 percentage: data.percentage
             };
+        },
+        deleteItem: function (type,id) {
+            var ids = data.allItems[type].map(function(current){
+                return current.id;
+            });
+
+            var index = ids.indexOf(id);
+            
+            if(index !== -1)
+                data.allItems[type].splice(index,1);
         }
 
     }
@@ -172,6 +182,12 @@ var UIController = (function(){
                 document.querySelector(DOMStrings.percentageLabel).textContent = '---';
             }
         
+        },
+        deleteListItem: function (elementId) {
+
+            var el = document.getElementById(elementId);
+            el.parentNode.removeChild(el);
+            
         }
     }
 })();
@@ -183,7 +199,8 @@ var controller = (function (budgetCtrl,UICrtl){
         var DOM  = UICrtl.getDOMStrings();
 
         document.querySelector(DOM.inputBtn).addEventListener('click',ctrlAddItem);
-        
+        document.querySelector(DOM.container).addEventListener('click',ctrlDeleteItem);
+
         document.addEventListener('keypress',function(event){
             if(event.keyCode === 13 || event.which === 13){
                 ctrlAddItem();
@@ -215,6 +232,24 @@ var controller = (function (budgetCtrl,UICrtl){
 
         updateBudget();
     };
+
+    var ctrlDeleteItem = function(event) {
+
+      elementId = event.target.parentNode.parentNode.parentNode.parentNode.id;
+
+      var vals = elementId.split('-');
+      var type = vals[0];
+      var id = parseInt(vals[1]);
+
+      //1. Eliminar de estructura de datos
+      budgetCtrl.deleteItem(type,id);
+    
+      //2. Eliminar de Vista   
+      UICrtl.deleteListItem(elementId);
+
+      updateBudget();
+    
+    }
 
 
     return {
